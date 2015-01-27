@@ -4,7 +4,10 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.swing.Timer;
 
 public class RandomPlayer {
 
@@ -18,8 +21,21 @@ public class RandomPlayer {
 	int connectLength;
 	int timeLimit;
 	int moveNum= 0;
+	boolean isTimeUp = false;
 	String bestAnswer;
-	Thread timerThread;
+	Timer timerRunning;
+	ActionListener timeUp = new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			System.out.println(bestAnswer);
+			timerRunning.stop();
+			isTimeUp = true;
+			updateSelfMove(Character.getNumericValue(bestAnswer.charAt(0)) , Character.getNumericValue(bestAnswer.charAt(2)), 1);
+			//might be  a bug where this spits out answer, but then our minimax func also spits out answer.
+		}
+	};
 	boolean isMyTurn;
 	int myPlayerNum;
 	
@@ -99,19 +115,22 @@ public class RandomPlayer {
 	
 	
 	public void processInput() throws IOException{	
-	
+		isTimeUp = false;
     	String s=input.readLine();	
 		List<String> ls=Arrays.asList(s.split(" "));
 		if(ls.size()==2){
 			//every move except first :D
 			
-//			   sendGameInfo(column+" "+operation);
+//This is sent to us:	 sendGameInfo(column+" "+operation);
 			updateBoardWithOpponentMove(Integer.parseInt(ls.get(0)),Integer.parseInt(ls.get(1)) );
-			
+			//start the timer!
+			timerRunning.restart();
 			int currentNode = 0;
 			switch(depth){
 				case 1:
 					for (Point p : getPossibleMoves()){
+						//TODO Remember to update the best so far String.
+						//===============================================
 						//pointEvaluation(p.height, p.width);
 						depth1[currentNode].value = pointEvaluation(p.height, p.width);
 //						System.out.println(depth1[currentNode].value);
@@ -134,14 +153,17 @@ public class RandomPlayer {
 			
 			
 			moveNum++;
-			//debug
-
 			maxMove(root);
 			
-			String move = root.nodePoint.width + " 1";
-			updateSelfMove(root.nodePoint.height, root.nodePoint.width) ;
-			System.out.println(move);
-			
+
+			if(isTimeUp){
+				String move = root.nodePoint.width + " 1";
+				//assuming all our moves are not popout
+				updateSelfMove(root.nodePoint.height, root.nodePoint.width, 1);
+				System.out.println(move);
+			}
+
+			timerRunning.stop();
 		}
 		else if(ls.size()==1){
 			System.out.println("game over!!!");
@@ -164,6 +186,7 @@ public class RandomPlayer {
 			for(int i=0; i<width; i++){
 				this.depth1[i] = new Node(new Point(0,0), 0, null);
 			}
+			timerRunning = new Timer (timeLimit * 1000 ,timeUp);
 			
 			
 //			Node[] depth3 = new Node[width];
@@ -181,9 +204,7 @@ public class RandomPlayer {
 			
 			if(isMyTurn)
 				System.out.println("3 1");
-			
-			else;
-
+			timerRunning.stop();
 //			System.out.println(bestAnswer);  //first move
 		}
 		else if(ls.size()==4){		//player1: aa player2: bb
@@ -396,8 +417,11 @@ public class RandomPlayer {
 	}
 	
 	private void updateBoardWithOpponentMove(int w, int popOut){
+		//is it a popout
 		if(popOut == 0){
-			
+			for (int i = 0; i <height-1 ; i ++){
+				gameBoard[i][w]= gameBoard [i+1][w];
+			}
 			return;
 		}
 		int h = 0;
@@ -409,7 +433,13 @@ public class RandomPlayer {
 		}
 		gameBoard[h][w] = 2;
 	}
-	private void updateSelfMove(int h, int w){
+	private void updateSelfMove(int h, int w, int popOut){
+		if(popOut == 0){
+			for (int i = 0; i <height-1 ; i ++){
+				gameBoard[i][w]= gameBoard [i+1][w];
+			}
+			return;
+		}
 		gameBoard [h][w] = 1;
 	}
 
