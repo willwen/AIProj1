@@ -15,10 +15,19 @@ public class testRandomPlayer {
 	}
 
 	@Test
-	public void testProcessInput() {
-		fail("Not yet implemented");
+	public void testProcessInput() throws IOException {
+		RandomPlayer rp = new RandomPlayer();
+		rp.myPlayerNum = 1;
+		rp.processInput();
+		rp.processInput();
+		rp.processInput();
+
+		rp.processInput();
+
 	}
 
+	
+	
 	@Test
 	public void testPointEvaluation() throws IOException {
 		RandomPlayer rp= new RandomPlayer();

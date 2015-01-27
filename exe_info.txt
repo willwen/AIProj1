@@ -1,0 +1,16 @@
+Yuan Wen 
+Ryan Melville
+
+Modified Source Files:
+Point.java
+RandomPlayer.java <- contains main methods
+testRandomPlayer.java
+ThreadTimer.java
+
+
+Compiling those java files yields:
+
+RMelvilleYWenPlayer.jar
+
+Then run in the same fashion as the test players:
+java -jar RefereeForDebug.jar "java -jar ($directory)/RMelvilleYWenPlayer.jar.jar" "java -jar C:\courses2013fall\testPlayer2.jar" 6 7 3 10 10

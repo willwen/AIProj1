@@ -20,28 +20,30 @@ public class RandomPlayer {
 	int moveNum= 0;
 	String bestAnswer;
 	Thread timerThread;
+	boolean isMyTurn;
+	int myPlayerNum;
 	
 	//The current search depth
 	int depth = 1;
 	
 	//Arrays of Nodes for each depth of the search
-	Node[] depth1 = new Node[width];
-	Node[] depth3 = new Node[width];
-	Node[] depth5 = new Node[width];
+	Node[] depth1;
+	Node[] depth3;
+	Node[] depth5;
 	
 	//Top level of the search tree
-	Node root = new Node(new Point(0,0), 0, depth1);
+	Node root;
 	
 	RandomPlayer(){
-		timerThread = new Thread(new ThreadTimer(new Double(timeLimit*.9).intValue()*1000, new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
-					System.out.println(bestAnswer);
-				}
-			}));
-		timerThread.start();
+//		timerThread = new Thread(new ThreadTimer(new Double(timeLimit*.9).intValue()*1000, new ActionListener() {
+//				
+//				@Override
+//				public void actionPerformed(ActionEvent e) {
+//					// TODO Auto-generated method stub
+//					System.out.println(bestAnswer);
+//				}
+//			}));
+//		timerThread.start();
 	}
 	
 	public void maxMove(Node n){
@@ -55,7 +57,9 @@ public class RandomPlayer {
 			currentChildPoint = n.children[i].nodePoint;
 			if(bestSoFar < currentChildValue){
 				bestSoFar = currentChildValue;
+				//System.out.println("Heur Value: " + bestSoFar);
 				bestPointSoFar = currentChildPoint;
+				//System.out.println("Point: " + bestPointSoFar.height + " " + bestPointSoFar.width);
 			}
 		}
 		n.value = bestSoFar;
@@ -99,6 +103,8 @@ public class RandomPlayer {
     	String s=input.readLine();	
 		List<String> ls=Arrays.asList(s.split(" "));
 		if(ls.size()==2){
+			//every move except first :D
+			
 //			   sendGameInfo(column+" "+operation);
 			updateBoardWithOpponentMove(Integer.parseInt(ls.get(0)),Integer.parseInt(ls.get(1)) );
 			
@@ -108,6 +114,7 @@ public class RandomPlayer {
 					for (Point p : getPossibleMoves()){
 						//pointEvaluation(p.height, p.width);
 						depth1[currentNode].value = pointEvaluation(p.height, p.width);
+//						System.out.println(depth1[currentNode].value);
 						currentNode++;
 					}
 					root.children = depth1;
@@ -128,11 +135,13 @@ public class RandomPlayer {
 			
 			moveNum++;
 			//debug
-			System.out.println(ls);
 
+			maxMove(root);
 			
-			System.out.println(bestAnswer);
-
+			String move = root.nodePoint.width + " 1";
+			updateSelfMove(root.nodePoint.height, root.nodePoint.width) ;
+			System.out.println(move);
+			
 		}
 		else if(ls.size()==1){
 			System.out.println("game over!!!");
@@ -151,22 +160,41 @@ public class RandomPlayer {
 			gameBoard = new int[height][width];
 			timeLimit = Integer.parseInt(ls.get(4));
 			middleSlot = width /2;
+			this.depth1 = new Node[width];
+			for(int i=0; i<width; i++){
+				this.depth1[i] = new Node(new Point(0,0), 0, null);
+			}
 			
 			
+//			Node[] depth3 = new Node[width];
+//			Node[] depth5 = new Node[width];
+//				
+			root = new Node(new Point(0,0), 0, depth1);
 			
 			
+			if( myPlayerNum == Integer.parseInt(ls.get(3))){
+				isMyTurn = true;
+			}
+			else 
+				isMyTurn = false;
 			
 			
+			if(isMyTurn)
+				System.out.println("3 1");
 			
-			
-			
-			
-			moveNum++;
+			else;
 
-			System.out.println(bestAnswer);  //first move
+//			System.out.println(bestAnswer);  //first move
 		}
 		else if(ls.size()==4){		//player1: aa player2: bb
 			//TODO combine this information with game information to decide who is the first player
+			
+			//    String s = "player1: " + this.player1_name + " player2: " + this.player2_name;
+			if(ls.get(1).equals(this.playerName))
+				myPlayerNum = 1;
+			else 
+				myPlayerNum = 2;
+
 		}
 		else
 			System.out.println("not what I want");
@@ -239,7 +267,7 @@ public class RandomPlayer {
 		
 		
 		
-		
+//		System.out.println("At " + height + " "+ width + " the value is " + points);
 		
 		//reset placement back to normal
 		gameBoard[height][width] = 0;
@@ -250,85 +278,85 @@ public class RandomPlayer {
 		int surrounding= 0;
 		if (height == 0){
 			if (width == 0){
-				if (gameBoard[height++][width++] == 1)
+				if (gameBoard[height+1][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height][width++] == 1)
+				if (gameBoard[height][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width] == 1)
+				if (gameBoard[height+1][width] == 1)
 					surrounding ++;
 				
 				return surrounding;
 			}
 			
 			else if (width == this.width-1){
-				if (gameBoard[height++][width--] == 1)
+				if (gameBoard[height+1][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height][width--] == 1)
+				if (gameBoard[height][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width] == 1)
+				if (gameBoard[height+1][width] == 1)
 					surrounding ++;
 				return surrounding;
 			}
 			
 			else{
-				if (gameBoard[height++][width] == 1)
+				if (gameBoard[height+1][width] == 1)
 					surrounding ++;
-				if (gameBoard[height][width++] == 1)
+				if (gameBoard[height][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height][width--] == 1)
+				if (gameBoard[height][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width++] == 1)
+				if (gameBoard[height+1][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width--] == 1)
+				if (gameBoard[height+1][width-1] == 1)
 					surrounding ++;
 				return surrounding;
 			}
 		}
 		else{ //height isnt the lowest level
 			if (width == 0){
-				if (gameBoard[height++][width++] == 1)
+				if (gameBoard[height+1][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height][width++] == 1)
+				if (gameBoard[height][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width] == 1)
+				if (gameBoard[height+1][width] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width] == 1)
+				if (gameBoard[height-1][width] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width++] == 1)
+				if (gameBoard[height-1][width+1] == 1)
 					surrounding ++;
 				return surrounding;
 			}
 			
 			else if (width == this.width-1){
-				if (gameBoard[height++][width--] == 1)
+				if (gameBoard[height+1][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height][width--] == 1)
+				if (gameBoard[height][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width] == 1)
+				if (gameBoard[height+1][width] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width] == 1)
+				if (gameBoard[height-1][width] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width--] == 1)
+				if (gameBoard[height-1][width-1] == 1)
 					surrounding ++;
 				return surrounding;
 			}
 			
 			else{
-				if (gameBoard[height++][width] == 1)
+				if (gameBoard[height+1][width] == 1)
 					surrounding ++;
-				if (gameBoard[height][width++] == 1)
+				if (gameBoard[height][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height][width--] == 1)
+				if (gameBoard[height][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width++] == 1)
+				if (gameBoard[height+1][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height++][width--] == 1)
+				if (gameBoard[height+1][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width--] == 1)
+				if (gameBoard[height-1][width-1] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width++] == 1)
+				if (gameBoard[height-1][width+1] == 1)
 					surrounding ++;
-				if (gameBoard[height--][width] == 1)
+				if (gameBoard[height-1][width] == 1)
 					surrounding ++;
 			}
 		}
@@ -350,6 +378,7 @@ public class RandomPlayer {
 					switch(depth){
 						case 1:
 							depth1[k].nodePoint = new Point(j, i);
+//							System.out.println("in get possible moves" + depth1[k].nodePoint.height +" with width: " +depth1[k].nodePoint.height );
 							break;
 						/*case 3:
 							depth3[k].nodePoint = new Point(j, i);
@@ -366,8 +395,22 @@ public class RandomPlayer {
 		return possibleMoves;
 	}
 	
-	private void updateBoardWithOpponentMove(int h, int w){
+	private void updateBoardWithOpponentMove(int w, int popOut){
+		if(popOut == 0){
+			
+			return;
+		}
+		int h = 0;
+		for (int i = 0 ; i < height; i ++){
+			if (gameBoard[i][w]==0){
+				h = i;
+				break;
+			}
+		}
 		gameBoard[h][w] = 2;
+	}
+	private void updateSelfMove(int h, int w){
+		gameBoard [h][w] = 1;
 	}
 
 	
