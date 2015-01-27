@@ -4,10 +4,7 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-
+import java.util.*;
 
 public class RandomPlayer {
 
@@ -24,6 +21,16 @@ public class RandomPlayer {
 	String bestAnswer;
 	Thread timerThread;
 	
+	//The current search depth
+	int depth = 1;
+	
+	//Arrays of Nodes for each depth of the search
+	Node[] depth1 = new Node[width];
+	Node[] depth3 = new Node[width];
+	Node[] depth5 = new Node[width];
+	
+	//Top level of the search tree
+	Node root = new Node(new Point(0,0), 0, depth1);
 	
 	RandomPlayer(){
 		timerThread = new Thread(new ThreadTimer(new Double(timeLimit*.9).intValue()*1000, new ActionListener() {
@@ -37,6 +44,55 @@ public class RandomPlayer {
 		timerThread.start();
 	}
 	
+	public void maxMove(Node n){
+		int currentChildValue;
+		Point currentChildPoint;
+		int bestSoFar = 0;
+		Point bestPointSoFar = new Point(0,0);
+		
+		for (int i = 0; i <width ; i++){
+			currentChildValue = n.children[i].value;
+			currentChildPoint = n.children[i].nodePoint;
+			if(bestSoFar < currentChildValue){
+				bestSoFar = currentChildValue;
+				bestPointSoFar = currentChildPoint;
+			}
+		}
+		n.value = bestSoFar;
+		n.nodePoint = bestPointSoFar;
+	}
+	
+	public void minMove(Node n){
+		int currentChildValue;
+		Point currentChildPoint;
+		int bestSoFar = 100;
+		Point bestPointSoFar = new Point(0,0);
+		
+		for (int i = 0; i <width ; i++){
+			currentChildValue = n.children[i].value;
+			currentChildPoint = n.children[i].nodePoint;
+			if(bestSoFar > currentChildValue){
+				bestSoFar = currentChildValue;
+				bestPointSoFar = currentChildPoint;
+			}
+		}
+		n.value = bestSoFar;
+		n.nodePoint = bestPointSoFar;
+	}
+	
+	public void minimax (int depth){
+		switch(depth){
+			case 1:
+				maxMove(root);
+				//Move will be root's 'nodePoint'
+			case 3:
+				for (int i = 0; i <width ; i++){
+					
+				}
+		}
+		
+	}
+	
 	
 	public void processInput() throws IOException{	
 	
@@ -45,9 +101,26 @@ public class RandomPlayer {
 		if(ls.size()==2){
 //			   sendGameInfo(column+" "+operation);
 			updateBoardWithOpponentMove(Integer.parseInt(ls.get(0)),Integer.parseInt(ls.get(1)) );
-			for (Point p : getPossibleMoves()){
-				pointEvaluation(p.height, p.width);
+			
+			int currentNode = 0;
+			switch(depth){
+				case 1:
+					for (Point p : getPossibleMoves()){
+						//pointEvaluation(p.height, p.width);
+						depth1[currentNode].value = pointEvaluation(p.height, p.width);
+						currentNode++;
+					}
+					root.children = depth1;
+					
+				/*case 3:
+					depth3[currentNode].value = pointEvaluation(p.height, p.width);
+					break;
+				case 5:
+					depth5[currentNode].value = pointEvaluation(p.height, p.width);
+					break;*/
 			}
+			
+			currentNode = 0;
 			
 			
 			
@@ -274,6 +347,17 @@ public class RandomPlayer {
 			for (int j = 0; j <height ; j++){
 				if(gameBoard[j] [i] == 0){
 					possibleMoves[k] = new Point(j, i);
+					switch(depth){
+						case 1:
+							depth1[k].nodePoint = new Point(j, i);
+							break;
+						/*case 3:
+							depth3[k].nodePoint = new Point(j, i);
+							break;
+						case 5:
+							depth5[k].nodePoint = new Point(j, i);
+							break;*/
+					}
 					k++;
 					break;
 				}
@@ -285,9 +369,7 @@ public class RandomPlayer {
 	private void updateBoardWithOpponentMove(int h, int w){
 		gameBoard[h][w] = 2;
 	}
-	
-	
-	
+
 	
 	
 	

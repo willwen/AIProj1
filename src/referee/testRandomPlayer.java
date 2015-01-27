@@ -3,8 +3,6 @@ package referee;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.Random;
-
 import org.junit.Test;
 
 public class testRandomPlayer {
