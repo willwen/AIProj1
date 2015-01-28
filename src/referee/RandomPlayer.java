@@ -44,8 +44,8 @@ public class RandomPlayer {
 	
 	//Arrays of Nodes for each depth of the search
 	Node[] depth1;
-	Node[] depth3;
-	Node[] depth5;
+	//Node[] depth3;
+	//Node[] depth5;
 	
 	//Top level of the search tree
 	Node root;
@@ -131,36 +131,88 @@ public class RandomPlayer {
 					for (Point p : getPossibleMoves()){
 						//TODO Remember to update the best so far String.
 						//===============================================
-						//pointEvaluation(p.height, p.width);
 						depth1[currentNode].value = pointEvaluation(p.height, p.width);
-//						System.out.println(depth1[currentNode].value);
 						currentNode++;
 					}
+					currentNode = 0;
 					root.children = depth1;
 					
-				/*case 3:
-					depth3[currentNode].value = pointEvaluation(p.height, p.width);
+					maxMove(root);
+					bestAnswer = root.nodePoint.width + " 1";
+					updateSelfMove(root.nodePoint.height, root.nodePoint.width, 1);
+					depth = 2;
+					//break;
+					
+				case 2:
+					int currentDepth1Node;
+					for (currentDepth1Node = 0; currentDepth1Node < width; currentDepth1Node++){
+						//Assign the children of each node at depth1
+						for (int i = 0; i < width; i++){
+							root.children[currentDepth1Node].children[i] = new Node(new Point(0,0), 0, null);
+						}
+						//TODO Make getPossibleMoves have hypothetical boardstate based on best answer
+						for (Point p : getPossibleMoves()){
+							root.children[currentDepth1Node].children[currentNode].value = pointEvaluation(p.height, p.width);
+							currentNode++;
+						}
+						currentNode = 0;
+						
+						minMove(root.children[currentDepth1Node]);
+						
+					}
+					currentDepth1Node = 0;
+					
+					maxMove(root);
+					bestAnswer = root.nodePoint.width + " 1";
+					updateSelfMove(root.nodePoint.height, root.nodePoint.width, 1);
+					//depth = 3;
 					break;
-				case 5:
-					depth5[currentNode].value = pointEvaluation(p.height, p.width);
+				/*case 3:
+					int currentDepth2Node;
+					for (currentDepth1Node = 0; currentDepth1Node < width; currentDepth1Node++){
+						for (currentDepth2Node = 0; currentDepth2Node < width; currentDepth2Node++){
+							//Assign the children of each node at depth1
+							for (int i = 0; i < width; i++){
+								root.children[currentDepth1Node].children[currentDepth2Node].children[i] = new Node(new Point(0,0), 0, null);
+							}
+							//TODO Make getPossibleMoves have hypothetical boardstate based on best answer
+							for (Point p : getPossibleMoves()){
+								root.children[currentDepth1Node].children[currentDepth2Node].children[currentNode].value = pointEvaluation(p.height, p.width);
+								currentNode++;
+							}
+							currentNode = 0;
+							
+							maxMove(root.children[currentDepth1Node].children[currentDepth2Node]);
+						}
+						currentDepth2Node = 0;
+						
+						minMove(root.children[currentDepth1Node]);
+					}
+					currentDepth1Node = 0;
+					
+					maxMove(root);
+					bestAnswer = root.nodePoint.width + " 1";
+					updateSelfMove(root.nodePoint.height, root.nodePoint.width, 1);
+					depth = 1;
 					break;*/
 			}
 			
-			currentNode = 0;
+			depth = 1;
 			
 			
 			
 			
 			
 			moveNum++;
-			maxMove(root);
+			//maxMove(root);
 			
 
 			if(isTimeUp){
-				String move = root.nodePoint.width + " 1";
+				//String move = root.nodePoint.width + " 1";
 				//assuming all our moves are not popout
-				updateSelfMove(root.nodePoint.height, root.nodePoint.width, 1);
-				System.out.println(move);
+				//updateSelfMove(root.nodePoint.height, root.nodePoint.width, 1);
+				//System.out.println(move);
+				System.out.println(bestAnswer);
 			}
 
 			timerRunning.stop();
